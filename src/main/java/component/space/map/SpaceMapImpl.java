@@ -4,13 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.validation.constraints.Min;
+
 import org.vaadin.hezamu.canvas.Canvas;
 import org.vaadin.hezamu.canvas.client.mousewheel.MouseWheelEventDetails;
 
 import com.ejt.vaadin.sizereporter.ComponentResizeEvent;
 import com.ejt.vaadin.sizereporter.SizeReporter;
+import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Layout;
 import com.vaadin.ui.Panel;
+import com.vaadin.ui.VerticalLayout;
 
 import component.space.map.SpaceObject.Type;
 import component.space.map.calls.SpaceMapListener;
@@ -40,6 +44,8 @@ public class SpaceMapImpl extends Panel implements DragListener {
 
 	private int panOffsetY = 0;
 
+	
+	//TODO: docked ships may not need be in this list, might save performance.
 	private List<SpaceObject> spaceObjects = new ArrayList<>();
 
 	private MouseController mouse = new MouseController();
@@ -55,8 +61,10 @@ public class SpaceMapImpl extends Panel implements DragListener {
 
 	public void init() {
 
+		this.setSizeFull();
+		
+		//no menus in here else it screws up the painting coordinates
 		addCanvas(this, 100, 100, "%");
-
 		addMouseListeners(canvas, this);
 		sizeReporter = new SizeReporter(this);
 		sizeReporter.addResizeListener(this::updateSize);
@@ -122,7 +130,7 @@ public class SpaceMapImpl extends Panel implements DragListener {
 			cameraLocation.setX(cameraLocation.getX() - so.getX());
 			cameraLocation.setY(cameraLocation.getY() - so.getY());
 		} else {
-			//focus on mouse cursor
+			// focus on mouse cursor
 			cameraLocation.setX(cameraLocation.getX() - mouseZoomX);
 			cameraLocation.setY(cameraLocation.getY() - mouseZoomY);
 		}
@@ -171,51 +179,56 @@ public class SpaceMapImpl extends Panel implements DragListener {
 			gameLocation.setX(gameLocation.getX() + so.getX());
 			gameLocation.setY(gameLocation.getY() + so.getY());
 		} else {
-			//focus on mouse cursor
+			// focus on mouse cursor
 			gameLocation.setX(gameLocation.getX() + mouseZoomX);
 			gameLocation.setY(gameLocation.getY() + mouseZoomY);
 		}
 		return gameLocation;
 	}
 
-	// TODO refactor this code to be more clean.
+	
+	//TODO slecting ships may need to be included, for now they can be selected through searchlists.
 	private void selectObjectAt(Location clickLocation) {
 
-		// logger.info("selecting at " + clickLocation.toString());
-
-		Location gameLocation = cameraLocationToGameLocation(clickLocation);
-
-		// logger.info("selecting at gamelocation: {" + gameLocation.getX() + ",
-		// " + gameLocation.getY() + "}");
+		StringBuilder builder = new StringBuilder();
+		builder.append("\nselecting at " + clickLocation.toString());
 
 		boolean redraw = false;
-		// int threshhold = 2;
+
+		List<SpaceObject> candidates = new ArrayList<>();
+
 		for (SpaceObject so : spaceObjects) {
 
-			// in order to not have a single pixel to select we will create a
-			// selectbox roughtly equivalent with the drawing of the object.
-			// Bit of extra valid pixels to make selection easier.
-			// The collision (size) of the mouseclicks need tobe adjusted for
-			// the zoom.
-			double adjustedSize = (so.getSize() + 2) * scale;
-			double selectBoxLeft = so.getX() - adjustedSize;
-			double selectBoxRight = so.getX() + adjustedSize;
-			double selectBoxUp = so.getY() - adjustedSize;
-			double selectBoxDown = so.getY() + adjustedSize;
+			Location camera = gameLocationToCameraLocation(so.getGameLocation());
+			double clickObjectDistance = Math.sqrt(Math.pow(camera.getX() - clickLocation.getX(), 2)
+					+ Math.pow(camera.getY() - clickLocation.getY(), 2));
 
-			// logger.info("ClickBox: { x:[" + selectBoxLeft + ", " +
-			// selectBoxRight + "], y:[ " + selectBoxUp + ", "
-			// + selectBoxDown + "]}");
+			builder.append("\n-" + so.getName() + " " + camera.toString() + ", " + clickObjectDistance);
 
-			if (selectBoxLeft < gameLocation.getX() && gameLocation.getX() < selectBoxRight
-					&& selectBoxUp < gameLocation.getY() && gameLocation.getY() < selectBoxDown) {
-				so.setSelected(true);
-				// only redraw if something changed
-				redraw = true;
-			} else {
-				so.setSelected(false);
+			if (clickObjectDistance <= Math.min(5, so.getSize() + 2)) {
+				candidates.add(so);
 			}
 		}
+
+		for (SpaceObject candicate : candidates) {
+
+			// if one of the candidates is orbiting the others, do not select
+			// and if one of the candidates is docked at one of the others, do
+			// not
+			// select it.
+			if (!candidates.contains(candicate.getDockedAt()) && !candidates.contains(candicate.getOrbiting())) {
+				// that should leave exactly 1
+				SpaceObject currentlySelected = getSelectedObject();
+				if (currentlySelected != null) {
+					currentlySelected.setSelected(false);
+				}
+				candicate.setSelected(true);
+			}
+
+			builder.append("\ncandidate " + candicate.getName() + " " + candicate.isSelected());
+		}
+
+		logger.info(builder.toString());
 		if (redraw) {
 			painter.drawMap(canvas, spaceObjects, scale);
 		}
@@ -224,18 +237,18 @@ public class SpaceMapImpl extends Panel implements DragListener {
 
 	private void zoom(MouseWheelEventDetails med) {
 
-		logger.info("zooming at x " + med.getRelativeX() + " y " + med.getRelativeY());
-		
+		// logger.info("zooming at x " + med.getRelativeX() + " y " +
+		// med.getRelativeY());
+
 		if (med.isNorth()) {
 			scale = scale * 2; // * med.getScrollspeed()/3;
 		} else if (med.isSouth()) {
 			scale = scale * 0.5;
 		}
-		//TODO figure out how to zoom on mouse cursor
-//		mouseZoomX = (int) (med.getRelativeX()/scale);
-//		mouseZoomY = (int) (med.getRelativeY()/scale);
+		// TODO figure out how to zoom on mouse cursor
+		// mouseZoomX = (int) (med.getRelativeX()/scale);
+		// mouseZoomY = (int) (med.getRelativeY()/scale);
 
-		
 		painter.drawMap(canvas, spaceObjects, scale);
 	}
 

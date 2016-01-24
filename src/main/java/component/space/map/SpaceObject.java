@@ -9,8 +9,10 @@ import com.vaadin.shared.ui.colorpicker.Color;
 import com.vaadin.ui.Image;
 
 import lombok.Data;
+import lombok.ToString;
 
 @Data
+@ToString(exclude = "dockedAt") //prevent circularLoop in tostring
 public class SpaceObject {
 
 	public enum Type {
@@ -23,9 +25,6 @@ public class SpaceObject {
 	@NotNull
 	private int size;
 
-	// the body this spaceobject is orbiting around
-	private SpaceObject orbiting;
-
 	@NotNull
 	private int x;
 	@NotNull
@@ -33,18 +32,29 @@ public class SpaceObject {
 
 	@NotNull
 	private String name;
+	
+	/**
+	 * in km/s
+	 */
+	@NotNull private double speed;
+	
+	private boolean selected = false;
+	
+	// the body this spaceobject is orbiting around
+	private SpaceObject orbiting;
 
 	private List<SpaceObject> docked = new ArrayList<>();
+	
+	private SpaceObject dockedAt;
 
 	private String mouseOverInfo;
 
 	private Image image;
 
-	private boolean selected = false;
-
+	
 	private Color color = null;
 
-	public SpaceObject(Type type, int size, int x, int y, String name) {
+	public SpaceObject(Type type, int size, double speed, int x, int y, String name) {
 		this.type = type;
 		this.size = size;
 		this.x = x;
@@ -67,8 +77,8 @@ public class SpaceObject {
 	 *            max 15 chars
 	 * @param orbiting
 	 */
-	public SpaceObject(Type type, int size, int x, int y, String name, SpaceObject orbiting) {
-		this(type, size, orbiting.getX() + x, orbiting.getY() + y, name);
+	public SpaceObject(Type type, int size, double speed, int x, int y, String name, SpaceObject orbiting) {
+		this(type, size, speed, orbiting.getX() + x, orbiting.getY() + y, name);
 		this.orbiting = orbiting;
 
 	}
@@ -77,12 +87,14 @@ public class SpaceObject {
 		if (ship.getType() == Type.SHIP) {
 			ship.setX(x);
 			ship.setY(y);
+			ship.setDockedAt(this);
 			docked.add(ship);
 		}
 	}
 
 	public void undockShip(SpaceObject ship) {
 		if (ship.getType() == Type.SHIP) {
+			ship.setDockedAt(null);
 			docked.remove(ship);
 		}
 	}

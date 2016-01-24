@@ -65,8 +65,8 @@ public class SpaceMapPainter {
 			return;
 		}
 
-		logger.info("\n\tdrawing " + so.getName() + " at game " + so.getGameLocation().toString() + "\n\tdrawing "
-				+ so.getName() + " at camera " + drawLocation.toString());
+//		logger.info("\n\tdrawing " + so.getName() + " at game " + so.getGameLocation().toString() + "\n\tdrawing "
+//				+ so.getName() + " at camera " + drawLocation.toString());
 
 		canvas.saveContext();
 		// centerMap();
