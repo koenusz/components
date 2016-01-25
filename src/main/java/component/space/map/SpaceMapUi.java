@@ -10,6 +10,7 @@ import com.vaadin.annotations.Widgetset;
 import com.vaadin.server.Sizeable;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
+import com.vaadin.ui.Alignment;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.UI;
@@ -45,6 +46,9 @@ public class SpaceMapUi extends UI {
 		SpaceObject ship2 = new SpaceObject(Type.SHIP, 2, 0, 0, 0, "Baksteen 2");
 		mars.dockShip(ship1);
 		mars.dockShip(ship2);
+		
+		mars.setIndicatorsOn(0,1,2,3,4,5);
+		sun.setIndicatorsOn(0,1,3);
 
 		spaceMap.init();
 		
@@ -58,28 +62,33 @@ public class SpaceMapUi extends UI {
 		
 		Button  button = new Button();
 		button.setCaption("Cycle time");
-		button.setWidth(100, Unit.PIXELS);
-		
+	
 		leftMenu.addComponent(button);
 		
-		HorizontalLayout leftMenuPlusSpaceMap = new HorizontalLayout();
-		leftMenuPlusSpaceMap.setSizeFull();
-		leftMenuPlusSpaceMap.setSpacing(false);
-		leftMenuPlusSpaceMap.setMargin(false);
-		
-		leftMenuPlusSpaceMap.addComponent(leftMenu);
-		leftMenuPlusSpaceMap.addComponent(spaceMap);
-	
+//		HorizontalLayout leftMenuPlusSpaceMap = new HorizontalLayout();
+//		leftMenuPlusSpaceMap.setSizeFull();
+//		leftMenuPlusSpaceMap.setSpacing(false);
+//		leftMenuPlusSpaceMap.setMargin(false);
+//		
+//		leftMenuPlusSpaceMap.addComponent(leftMenu);
+//		leftMenuPlusSpaceMap.addComponent();
+//	
 
 		VerticalLayout topMenuContainer = new VerticalLayout();
-
-		HorizontalLayout topMenu = new HorizontalLayout();
-		topMenu.setHeight("30px");
+		topMenuContainer.setSizeFull();
 		
-		topMenuContainer.addComponent(leftMenuPlusSpaceMap);
+		HorizontalLayout topMenu = new HorizontalLayout();
+		
+		topMenu.addComponent(button);
+		topMenu.setSpacing(true);
+	
+		topMenuContainer.addComponent(topMenu);
+		topMenuContainer.setComponentAlignment(topMenu, Alignment.TOP_LEFT);
+		topMenuContainer.addComponent(spaceMap);
+		topMenuContainer.setExpandRatio(spaceMap, 1.0f);
 		topMenuContainer.setMargin(false);
 		topMenuContainer.setSpacing(false);
-		topMenuContainer.setSizeFull();
+		
 
 		setContent(topMenuContainer);
 

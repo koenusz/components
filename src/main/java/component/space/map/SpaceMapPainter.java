@@ -65,8 +65,9 @@ public class SpaceMapPainter {
 			return;
 		}
 
-//		logger.info("\n\tdrawing " + so.getName() + " at game " + so.getGameLocation().toString() + "\n\tdrawing "
-//				+ so.getName() + " at camera " + drawLocation.toString());
+		// logger.info("\n\tdrawing " + so.getName() + " at game " +
+		// so.getGameLocation().toString() + "\n\tdrawing "
+		// + so.getName() + " at camera " + drawLocation.toString());
 
 		canvas.saveContext();
 		// centerMap();
@@ -78,6 +79,7 @@ public class SpaceMapPainter {
 		drawOrbit(canvas, so, scale);
 		drawCircleSelection(canvas, so);
 		drawInfoText(canvas, so);
+		drawIndicators(canvas, so);
 	}
 
 	// should input an object
@@ -96,6 +98,26 @@ public class SpaceMapPainter {
 		canvas.setStrokeStyle(ColorConverter.convert(new Color(255, 255, 255)));
 		drawCircle(canvas, so.getSize() + 2, false);
 		canvas.restoreContext();
+	}
+
+	private void drawIndicators(Canvas canvas, SpaceObject so) {
+
+		Location drawLocation = spaceMap.gameLocationToCameraLocation(so.getGameLocation());
+		canvas.saveContext();
+		for (int i = 0; i < 6; i++) {
+			if (so.getIndicator(i)) {
+				// selection is always white
+				canvas.setStrokeStyle(so.getColor());
+				canvas.setLineWidth(2);
+				canvas.beginPath();
+
+				double start = ((Math.PI * 1/3 ) * i) + (Math.PI * 2/3);
+				double end = start + Math.PI * 0.3;
+				canvas.arc(drawLocation.getX(), drawLocation.getY(), so.getSize() + 5, start, end, true);
+				canvas.stroke();
+				canvas.restoreContext();
+			}
+		}
 	}
 
 	private void drawOrbit(Canvas canvas, SpaceObject so, double scale) {

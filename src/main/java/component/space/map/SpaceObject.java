@@ -1,6 +1,7 @@
 package component.space.map;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
@@ -12,7 +13,7 @@ import lombok.Data;
 import lombok.ToString;
 
 @Data
-@ToString(exclude = "dockedAt") //prevent circularLoop in tostring
+@ToString(exclude = "dockedAt") // prevent circularLoop in tostring
 public class SpaceObject {
 
 	public enum Type {
@@ -32,26 +33,31 @@ public class SpaceObject {
 
 	@NotNull
 	private String name;
-	
+
 	/**
 	 * in km/s
 	 */
-	@NotNull private double speed;
-	
+	@NotNull
+	private double speed;
+
 	private boolean selected = false;
-	
+
+	/**
+	 * toggles visual indicators
+	 */
+	private BitSet indicators = new BitSet(6);
+
 	// the body this spaceobject is orbiting around
 	private SpaceObject orbiting;
 
 	private List<SpaceObject> docked = new ArrayList<>();
-	
+
 	private SpaceObject dockedAt;
 
 	private String mouseOverInfo;
 
 	private Image image;
 
-	
 	private Color color = null;
 
 	public SpaceObject(Type type, int size, double speed, int x, int y, String name) {
@@ -108,6 +114,28 @@ public class SpaceObject {
 
 		}
 		return mapInfo;
+	}
+
+	public boolean getIndicator(int index) {
+		return indicators.get(index);
+	}
+
+	public void setIndicatorsOn(int... index) {
+		for (int i : index) {
+			if (i >= 6) {
+				return;
+			}
+			indicators.set(i, true);
+		}
+	}
+
+	public void setIndicatorsOff(int... index) {
+		for (int i : index) {
+			if (i >= 6) {
+				return;
+			}
+			indicators.set(i, false);
+		}
 	}
 
 	public double getOrbitRadius() {
