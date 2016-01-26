@@ -27,6 +27,8 @@ public class SpaceMapUi extends UI {
 	private static final long serialVersionUID = -4777033788925901490L;
 
 	SpaceMapImpl spaceMap = new SpaceMapImpl();
+	
+	
 
 	@Override
 	protected void init(VaadinRequest vaadinRequest) {
@@ -38,7 +40,9 @@ public class SpaceMapUi extends UI {
 		spaceMap.addSpaceObject(sun);
 		SpaceObject mars = new SpaceObject(Type.PLANET, 4, 24, 250, 150, "Mars", sun);
 		spaceMap.addSpaceObject(mars);
-		spaceMap.addSpaceObject(new SpaceObject(Type.MOON, 3, -10, 75, 25, "MarsMoon 1", mars));
+		
+		SpaceObject marsMoon1 = new SpaceObject(Type.MOON, 3, -10, 75, 25, "MarsMoon 1", mars);
+		spaceMap.addSpaceObject(marsMoon1);
 		spaceMap.addSpaceObject(new SpaceObject(Type.MOON, 3, 5, 1, 1, "Close Moon 2", mars));
 		// addSpaceObject(new SpaceObject(Type.SHIP, 2, 300, 150, "SS.
 		// Baksteen"));
@@ -47,12 +51,18 @@ public class SpaceMapUi extends UI {
 		mars.dockShip(ship1);
 		mars.dockShip(ship2);
 		
+		SpaceMapConfig.activateIndicator("Has Minerals");
+		SpaceMapConfig.activateIndicator("Has Colony");
+		
 		mars.setIndicatorsOn(0,1,2,3,4,5);
 		sun.setIndicatorsOn(0,1,3);
-
+		marsMoon1.setIndicatorsOn(0);
+		
+		
+		
 		spaceMap.init();
 		
-		
+
 		
 		
 		

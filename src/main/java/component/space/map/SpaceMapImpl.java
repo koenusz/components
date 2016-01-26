@@ -4,17 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import javax.validation.constraints.Min;
-
 import org.vaadin.hezamu.canvas.Canvas;
 import org.vaadin.hezamu.canvas.client.mousewheel.MouseWheelEventDetails;
 
 import com.ejt.vaadin.sizereporter.ComponentResizeEvent;
 import com.ejt.vaadin.sizereporter.SizeReporter;
-import com.vaadin.ui.HorizontalLayout;
-import com.vaadin.ui.Layout;
 import com.vaadin.ui.Panel;
-import com.vaadin.ui.VerticalLayout;
 
 import component.space.map.SpaceObject.Type;
 import component.space.map.calls.SpaceMapListener;
@@ -51,7 +46,7 @@ public class SpaceMapImpl extends Panel implements DragListener {
 	private MouseController mouse = new MouseController();
 
 	private SpaceMapPainter painter = new SpaceMapPainter(this);
-
+	
 	private SizeReporter sizeReporter;
 
 	@Getter

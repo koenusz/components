@@ -12,6 +12,8 @@ public class SpaceMapPainter {
 	private final static Logger logger = Logger.getLogger(SpaceMapUi.class.getName());
 
 	private SpaceMapImpl spaceMap;
+	
+	private PaintPermissions permisisons = new PaintPermissions();
 
 	public SpaceMapPainter(SpaceMapImpl spaceMap) {
 		super();
@@ -23,10 +25,8 @@ public class SpaceMapPainter {
 		canvas.clear();
 
 		drawBackground(canvas, new Color(35, 20, 180));
-		for (SpaceObject so : spaceObjects) {
-
-			drawSpaceObject(canvas, so, scale);
-		}
+		//TODO maybe filter spaceobject outside the painting coordinates of the canvas
+		spaceObjects.stream().filter(permisisons.switchedOn.or(permisisons.hasCombo)).forEach(so -> drawSpaceObject(canvas, so, scale));
 	}
 
 	private void drawInfoText(Canvas canvas, SpaceObject so) {
@@ -111,7 +111,7 @@ public class SpaceMapPainter {
 				canvas.setLineWidth(2);
 				canvas.beginPath();
 
-				double start = ((Math.PI * 1/3 ) * i) + (Math.PI * 2/3);
+				double start = ((Math.PI * 1 / 3) * i) + (Math.PI * 2 / 3);
 				double end = start + Math.PI * 0.3;
 				canvas.arc(drawLocation.getX(), drawLocation.getY(), so.getSize() + 5, start, end, true);
 				canvas.stroke();

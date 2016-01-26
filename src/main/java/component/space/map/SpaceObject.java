@@ -120,6 +120,18 @@ public class SpaceObject {
 		return indicators.get(index);
 	}
 
+	public boolean matchesIndicators(int... index) {
+		boolean result = false;
+		for (int i : index) {
+			if (indicators.get(i)) {
+				result = true;
+			} else {
+				return false;
+			}
+		}
+		return result;
+	}
+
 	public void setIndicatorsOn(int... index) {
 		for (int i : index) {
 			if (i >= 6) {
