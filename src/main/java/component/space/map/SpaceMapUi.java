@@ -7,6 +7,7 @@ import javax.servlet.annotation.WebServlet;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.annotations.Widgetset;
+import com.vaadin.server.BrowserWindowOpener;
 import com.vaadin.server.Sizeable;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
@@ -27,20 +28,15 @@ public class SpaceMapUi extends UI {
 	private static final long serialVersionUID = -4777033788925901490L;
 
 	SpaceMapImpl spaceMap = new SpaceMapImpl();
-	
-	
 
 	@Override
 	protected void init(VaadinRequest vaadinRequest) {
 
-
-		
-		
 		SpaceObject sun = new SpaceObject(Type.STAR, 6, 0, 0, 0, "Sun");
 		spaceMap.addSpaceObject(sun);
 		SpaceObject mars = new SpaceObject(Type.PLANET, 4, 24, 250, 150, "Mars", sun);
 		spaceMap.addSpaceObject(mars);
-		
+
 		SpaceObject marsMoon1 = new SpaceObject(Type.MOON, 3, -10, 75, 25, "MarsMoon 1", mars);
 		spaceMap.addSpaceObject(marsMoon1);
 		spaceMap.addSpaceObject(new SpaceObject(Type.MOON, 3, 5, 1, 1, "Close Moon 2", mars));
@@ -50,55 +46,64 @@ public class SpaceMapUi extends UI {
 		SpaceObject ship2 = new SpaceObject(Type.SHIP, 2, 0, 0, 0, "Baksteen 2");
 		mars.dockShip(ship1);
 		mars.dockShip(ship2);
-		
+
 		SpaceMapConfig.activateIndicator("Has Minerals");
 		SpaceMapConfig.activateIndicator("Has Colony");
-		
-		mars.setIndicatorsOn(0,1,2,3,4,5);
-		sun.setIndicatorsOn(0,1,3);
-		marsMoon1.setIndicatorsOn(0);
-		
-		
-		
-		spaceMap.init();
-		
 
-		
-		
-		
+		mars.setIndicatorsOn(0, 1, 2, 3, 4, 5);
+		sun.setIndicatorsOn(0, 1, 3);
+		marsMoon1.setIndicatorsOn(0);
+
+		spaceMap.init();
+
 		VerticalLayout leftMenu = new VerticalLayout();
 		leftMenu.setWidthUndefined();
+
+		Button arrow = new Button();
+		final String arrowUp = "\\u2c4";
+		final String arrowDown = "&#709;";
+		arrow.setCaption(arrowDown);
+		arrow.addClickListener( e -> {VisibilityWindow vis = new VisibilityWindow(spaceMap);
+		UI.getCurrent().addWindow(vis);
 		
-		
-		Button  button = new Button();
+		});
+
+//		BrowserWindowOpener popupOpener = new BrowserWindowOpener(VisibilityWindow.class);
+//		popupOpener.setFeatures("height=300,width=300");
+//		popupOpener.extend(arrow);
+//
+//		// Add a parameter
+//		popupOpener.setParameter("foo", "bar");
+//
+//		// Set a fragment
+//		popupOpener.setUriFragment("myfragment");
+
+		Button button = new Button();
 		button.setCaption("Cycle time");
-	
-		leftMenu.addComponent(button);
-		
-//		HorizontalLayout leftMenuPlusSpaceMap = new HorizontalLayout();
-//		leftMenuPlusSpaceMap.setSizeFull();
-//		leftMenuPlusSpaceMap.setSpacing(false);
-//		leftMenuPlusSpaceMap.setMargin(false);
-//		
-//		leftMenuPlusSpaceMap.addComponent(leftMenu);
-//		leftMenuPlusSpaceMap.addComponent();
-//	
+
+		// HorizontalLayout leftMenuPlusSpaceMap = new HorizontalLayout();
+		// leftMenuPlusSpaceMap.setSizeFull();
+		// leftMenuPlusSpaceMap.setSpacing(false);
+		// leftMenuPlusSpaceMap.setMargin(false);
+		//
+		// leftMenuPlusSpaceMap.addComponent(leftMenu);
+		// leftMenuPlusSpaceMap.addComponent();
+		//
 
 		VerticalLayout topMenuContainer = new VerticalLayout();
 		topMenuContainer.setSizeFull();
-		
+
 		HorizontalLayout topMenu = new HorizontalLayout();
-		
+		topMenu.addComponent(arrow);
 		topMenu.addComponent(button);
 		topMenu.setSpacing(true);
-	
+
 		topMenuContainer.addComponent(topMenu);
 		topMenuContainer.setComponentAlignment(topMenu, Alignment.TOP_LEFT);
 		topMenuContainer.addComponent(spaceMap);
 		topMenuContainer.setExpandRatio(spaceMap, 1.0f);
 		topMenuContainer.setMargin(false);
 		topMenuContainer.setSpacing(false);
-		
 
 		setContent(topMenuContainer);
 
@@ -124,7 +129,7 @@ public class SpaceMapUi extends UI {
 
 		// make the center of the canvas the 0,0 coord.
 		// canvas.translate(centerX, centerY);
-		
+
 	}
 
 	@WebServlet(urlPatterns = "/space/*", name = "SpaceMapUIServlet", asyncSupported = true)

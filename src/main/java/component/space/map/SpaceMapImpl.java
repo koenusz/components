@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.stereotype.Component;
 import org.vaadin.hezamu.canvas.Canvas;
 import org.vaadin.hezamu.canvas.client.mousewheel.MouseWheelEventDetails;
 
@@ -15,8 +18,10 @@ import component.space.map.SpaceObject.Type;
 import component.space.map.calls.SpaceMapListener;
 import component.space.map.mouse.DragListener;
 import component.space.map.mouse.MouseController;
+import component.space.map.spring.SpringConfig;
 import lombok.Getter;
 
+@Component
 public class SpaceMapImpl extends Panel implements DragListener {
 
 	private static final long serialVersionUID = 1817025638490555374L;
@@ -55,8 +60,7 @@ public class SpaceMapImpl extends Panel implements DragListener {
 	private int absoluteWidth = 0;
 
 	public void init() {
-
-		this.setSizeFull();
+	this.setSizeFull();
 		
 		//no menus in here else it screws up the painting coordinates
 		addCanvas(this, 100, 100, "%");
@@ -105,6 +109,7 @@ public class SpaceMapImpl extends Panel implements DragListener {
 		// should never happen
 		throw new RuntimeException("No main star found");
 	}
+	
 
 	public SpaceObject getSelectedObject() {
 		for (SpaceObject so : spaceObjects) {

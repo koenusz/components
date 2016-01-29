@@ -49,6 +49,8 @@ public class SpaceObject {
 
 	// the body this spaceobject is orbiting around
 	private SpaceObject orbiting;
+	
+	private List<SpaceObject> orbitingThis = new ArrayList<>();
 
 	private List<SpaceObject> docked = new ArrayList<>();
 
@@ -72,6 +74,16 @@ public class SpaceObject {
 	}
 
 	/**
+	 * When a spaceobject is orbiting this spaceObjet, call this.
+	 * 
+	 * @param so
+	 */
+	public void callbackOrbiting(SpaceObject so)
+	{
+		orbitingThis.add(so);
+	}
+	
+	/**
 	 * 
 	 * Creates a Spaceobject relative to the object it is orbiting.
 	 * 
@@ -86,7 +98,7 @@ public class SpaceObject {
 	public SpaceObject(Type type, int size, double speed, int x, int y, String name, SpaceObject orbiting) {
 		this(type, size, speed, orbiting.getX() + x, orbiting.getY() + y, name);
 		this.orbiting = orbiting;
-
+		orbiting.callbackOrbiting(this);
 	}
 
 	public void dockShip(SpaceObject ship) {
