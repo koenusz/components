@@ -39,7 +39,7 @@ public class SpaceMapConfig {
 	 * @return false if there are more than 5.
 	 */
 	public static boolean activateIndicator(String indicatorName) {
-		if (indicators.size() > 5) {
+		if (indicators.size() > 5 || indicators.contains(indicatorName)) {
 			return false;
 		}
 		return indicators.add(indicatorName);

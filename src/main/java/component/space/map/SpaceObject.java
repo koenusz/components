@@ -10,10 +10,12 @@ import com.vaadin.shared.ui.colorpicker.Color;
 import com.vaadin.ui.Image;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @Data
-@ToString(exclude = "dockedAt") // prevent circularLoop in tostring
+@ToString(exclude = {"dockedAt", "orbitingThis"}) // prevent circularLoop in tostring
+@EqualsAndHashCode(exclude = {"dockedAt", "orbitingThis"})
 public class SpaceObject {
 
 	public enum Type {

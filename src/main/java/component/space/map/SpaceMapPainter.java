@@ -7,13 +7,15 @@ import org.vaadin.hezamu.canvas.Canvas;
 
 import com.vaadin.shared.ui.colorpicker.Color;
 
-public class SpaceMapPainter {
+import lombok.Getter;
+
+public class SpaceMapPainter{
 
 	private final static Logger logger = Logger.getLogger(SpaceMapUi.class.getName());
 
 	private SpaceMapImpl spaceMap;
 	
-	private PaintPermissions permisisons = new PaintPermissions();
+	@Getter private PaintPermissions permisisons = new PaintPermissions();
 
 	public SpaceMapPainter(SpaceMapImpl spaceMap) {
 		super();
@@ -26,7 +28,7 @@ public class SpaceMapPainter {
 
 		drawBackground(canvas, new Color(35, 20, 180));
 		//TODO maybe filter spaceobject outside the painting coordinates of the canvas
-		spaceObjects.stream().filter(permisisons.switchedOn.or(permisisons.hasCombo)).forEach(so -> drawSpaceObject(canvas, so, scale));
+		spaceObjects.stream().filter(permisisons.switchedOn.or(permisisons.hasCombo).and(permisisons.parentPermission)).forEach(so -> drawSpaceObject(canvas, so, scale));
 	}
 
 	private void drawInfoText(Canvas canvas, SpaceObject so) {
@@ -145,4 +147,5 @@ public class SpaceMapPainter {
 		}
 		canvas.restoreContext();
 	}
+
 }

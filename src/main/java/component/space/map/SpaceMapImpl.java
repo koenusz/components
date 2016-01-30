@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Component;
 import org.vaadin.hezamu.canvas.Canvas;
 import org.vaadin.hezamu.canvas.client.mousewheel.MouseWheelEventDetails;
@@ -18,11 +16,10 @@ import component.space.map.SpaceObject.Type;
 import component.space.map.calls.SpaceMapListener;
 import component.space.map.mouse.DragListener;
 import component.space.map.mouse.MouseController;
-import component.space.map.spring.SpringConfig;
 import lombok.Getter;
 
 @Component
-public class SpaceMapImpl extends Panel implements DragListener {
+public class SpaceMapImpl extends Panel implements DragListener, PermissionsChangedListener {
 
 	private static final long serialVersionUID = 1817025638490555374L;
 
@@ -44,14 +41,13 @@ public class SpaceMapImpl extends Panel implements DragListener {
 
 	private int panOffsetY = 0;
 
-	
-	//TODO: docked ships may not need be in this list, might save performance.
+	// TODO: docked ships may not need be in this list, might save performance.
 	private List<SpaceObject> spaceObjects = new ArrayList<>();
 
 	private MouseController mouse = new MouseController();
 
 	private SpaceMapPainter painter = new SpaceMapPainter(this);
-	
+
 	private SizeReporter sizeReporter;
 
 	@Getter
@@ -60,15 +56,16 @@ public class SpaceMapImpl extends Panel implements DragListener {
 	private int absoluteWidth = 0;
 
 	public void init() {
-	this.setSizeFull();
-		
-		//no menus in here else it screws up the painting coordinates
+		this.setSizeFull();
+
+		// no menus in here else it screws up the painting coordinates
 		addCanvas(this, 100, 100, "%");
 		addMouseListeners(canvas, this);
 		sizeReporter = new SizeReporter(this);
 		sizeReporter.addResizeListener(this::updateSize);
 
 		painter.drawMap(canvas, spaceObjects, scale);
+		painter.getPermisisons().addListener(this);
 	}
 
 	private void updateSize(ComponentResizeEvent event) {
@@ -109,9 +106,21 @@ public class SpaceMapImpl extends Panel implements DragListener {
 		// should never happen
 		throw new RuntimeException("No main star found");
 	}
-	
 
-	public SpaceObject getSelectedObject() {
+	public void deselectSpaceObject() {
+		SpaceObject previous = findSelectedSpaceObject();
+		if (previous != null) {
+			previous.setSelected(false);
+		}
+	}
+
+	public void selectSpaceObject(SpaceObject so) {
+		deselectSpaceObject();
+		so.setSelected(true);
+		painter.drawMap(canvas, spaceObjects, scale);
+	}
+
+	public SpaceObject findSelectedSpaceObject() {
 		for (SpaceObject so : spaceObjects) {
 			if (so.isSelected()) {
 				return so;
@@ -124,7 +133,7 @@ public class SpaceMapImpl extends Panel implements DragListener {
 
 		Location cameraLocation = game;
 
-		SpaceObject so = getSelectedObject();
+		SpaceObject so = findSelectedSpaceObject();
 		// focus on selected object
 		if (so != null) {
 			cameraLocation.setX(cameraLocation.getX() - so.getX());
@@ -173,7 +182,7 @@ public class SpaceMapImpl extends Panel implements DragListener {
 		// logger.info("converting camera " + gameLocation.toString() + " ->
 		// game " + camera.toString());
 
-		SpaceObject so = getSelectedObject();
+		SpaceObject so = findSelectedSpaceObject();
 		// focus on selected object
 		if (so != null) {
 			gameLocation.setX(gameLocation.getX() + so.getX());
@@ -186,8 +195,8 @@ public class SpaceMapImpl extends Panel implements DragListener {
 		return gameLocation;
 	}
 
-	
-	//TODO slecting ships may need to be included, for now they can be selected through searchlists.
+	// TODO slecting ships may need to be included, for now they can be selected
+	// through searchlists.
 	private void selectObjectAt(Location clickLocation) {
 
 		StringBuilder builder = new StringBuilder();
@@ -218,7 +227,7 @@ public class SpaceMapImpl extends Panel implements DragListener {
 			// select it.
 			if (!candidates.contains(candicate.getDockedAt()) && !candidates.contains(candicate.getOrbiting())) {
 				// that should leave exactly 1
-				SpaceObject currentlySelected = getSelectedObject();
+				SpaceObject currentlySelected = findSelectedSpaceObject();
 				if (currentlySelected != null) {
 					currentlySelected.setSelected(false);
 				}
@@ -232,7 +241,6 @@ public class SpaceMapImpl extends Panel implements DragListener {
 		if (redraw) {
 			painter.drawMap(canvas, spaceObjects, scale);
 		}
-
 	}
 
 	private void zoom(MouseWheelEventDetails med) {
@@ -280,6 +288,10 @@ public class SpaceMapImpl extends Panel implements DragListener {
 		canvas.setHeight(height + mode);
 	}
 
+	protected PaintPermissions getPaintPermissions() {
+		return painter.getPermisisons();
+	}
+
 	@Override
 	public void onDrag(MouseController mouse) {
 		// if the startlocation is empty: pan
@@ -290,6 +302,12 @@ public class SpaceMapImpl extends Panel implements DragListener {
 		// if the startlocation is occupied, behaviour based on object. //TODO
 		// We probally should not make the spacemap aware of what that behaviour
 		// should be besides not panning the map.
+
+	}
+
+	@Override
+	public void onPermissionChange() {
+		painter.drawMap(canvas, spaceObjects, scale);
 
 	}
 }
