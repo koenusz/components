@@ -14,20 +14,18 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 @Data
-@ToString(exclude = {"dockedAt", "orbitingThis"}) // prevent circularLoop in tostring
-@EqualsAndHashCode(exclude = {"dockedAt", "orbitingThis"})
+@ToString(exclude = { "orbitingThis" }) // prevent circularLoop in tostring
+@EqualsAndHashCode(exclude = { "orbitingThis" })
 public class SpaceObject {
 
 	public enum Type {
-		MOON, PLANET, STAR, SHIP, ASTEROID, JUMP, LAGRANGE
+		MOON, PLANET, STAR, ASTEROID, JUMP, LAGRANGE
 	}
 
 	@NotNull
 	private Type type;
-
 	@NotNull
 	private int size;
-
 	@NotNull
 	private int x;
 	@NotNull
@@ -35,6 +33,8 @@ public class SpaceObject {
 
 	@NotNull
 	private String name;
+	
+	private String faction;
 
 	/**
 	 * in km/s
@@ -51,14 +51,12 @@ public class SpaceObject {
 
 	// the body this spaceobject is orbiting around
 	private SpaceObject orbiting;
-	
+
 	private List<SpaceObject> orbitingThis = new ArrayList<>();
 
-	private List<SpaceObject> docked = new ArrayList<>();
+	private List<Fleet> docked = new ArrayList<>();
 
-	private SpaceObject dockedAt;
-
-	private String mouseOverInfo;
+	private String objectInfo;
 
 	private Image image;
 
@@ -80,11 +78,10 @@ public class SpaceObject {
 	 * 
 	 * @param so
 	 */
-	public void callbackOrbiting(SpaceObject so)
-	{
+	public void callbackOrbiting(SpaceObject so) {
 		orbitingThis.add(so);
 	}
-	
+
 	/**
 	 * 
 	 * Creates a Spaceobject relative to the object it is orbiting.
@@ -103,28 +100,37 @@ public class SpaceObject {
 		orbiting.callbackOrbiting(this);
 	}
 
-	public void dockShip(SpaceObject ship) {
-		if (ship.getType() == Type.SHIP) {
-			ship.setX(x);
-			ship.setY(y);
-			ship.setDockedAt(this);
-			docked.add(ship);
-		}
+	/**
+	 * Docking means that the ships get soo close to the SpaceObject that they
+	 * are not rendered anymore and show up in the info of the {@link SpaceObject};
+	 * same postition
+	 * 
+	 * @param fleet
+	 */
+
+	public void dockShip(Fleet fleet) {
+
+		fleet.setX(x);
+		fleet.setY(y);
+		fleet.setDockedAt(this);
+		docked.add(fleet);
+
 	}
 
-	public void undockShip(SpaceObject ship) {
-		if (ship.getType() == Type.SHIP) {
-			ship.setDockedAt(null);
-			docked.remove(ship);
-		}
+	public void undockShip(Fleet fleet) {
+
+		fleet.setDockedAt(null);
+		docked.remove(fleet);
 	}
+
+	
 
 	public List<String> getMapInfo() {
 		List<String> mapInfo = new ArrayList<>();
 		// always ad your own name first
 		mapInfo.add(name);
-		for (SpaceObject ship : docked) {
-			mapInfo.add(ship.getName());
+		for (Fleet fleet : docked) {
+			mapInfo.add(fleet.getName());
 
 		}
 		return mapInfo;
@@ -195,8 +201,6 @@ public class SpaceObject {
 			return ColorConverter.convert(new Color(240, 245, 70));// yellow
 		case PLANET:
 			return ColorConverter.convert(new Color(15, 220, 60));// green
-		case SHIP:
-			return ColorConverter.convert(new Color(150, 240, 140));
 		// light green
 		case MOON:
 			return ColorConverter.convert(new Color(215, 240, 245));

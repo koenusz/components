@@ -1,19 +1,22 @@
 package component.space.map;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.vaadin.ui.Button;
 
 import lombok.Data;
 import lombok.Getter;
+import lombok.Setter;
 
 @Data
 public class SpaceMapConfig {
 	
-	@Getter private static String solarSystemName = "sol";
+	
+	/**
+	 * the name of the current solar system.
+	 */
+	@Getter @Setter private static String solarSystemName = "sol";
 
 	private static List<Button> buttons = new ArrayList<>();
 
@@ -33,6 +36,7 @@ public class SpaceMapConfig {
 		return buttons;
 	}
 
+	
 	/**
 	 * Makes an entry into the indicator list. This makes them appear in the ui.
 	 * 
@@ -64,4 +68,10 @@ public class SpaceMapConfig {
 	 */
 	public static List<String> getIndicators() {
 		return indicators;}
+	
+	protected static int findIndicatorIndex(String indicatorName)
+	{
+		return indicators.indexOf(indicatorName);
+	}
 }
+

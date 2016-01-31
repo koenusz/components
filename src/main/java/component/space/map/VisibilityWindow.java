@@ -34,19 +34,15 @@ public class VisibilityWindow extends Window {
 	TabSheet tabsheet = new TabSheet();
 
 	Tree tree;
+	
+	Tree fleetTree;
 
 	SimpleStringFilter filter = null;
 
 	public VisibilityWindow(SpaceMapImpl spaceMap) {
 		this.spaceMap = spaceMap;
 		this.setWidth("300px");
-
 		this.setPosition(10, 40);
-
-		// TODO fix alignment of the window
-		Component parent = this.getParent();
-		// parent.setComponentAlignment()
-
 		this.setContent(content);
 
 		TextField searchBox = new TextField("What  object are you looking for?");
@@ -59,6 +55,7 @@ public class VisibilityWindow extends Window {
 
 		addVisibilityTab();
 		addOverviewTreeTab();
+		addFleetTab();
 	}
 
 	private void textChange(TextChangeEvent event) {
@@ -72,6 +69,36 @@ public class VisibilityWindow extends Window {
 		filter = new SimpleStringFilter("name", event.getText(), true, false);
 		f.addContainerFilter(filter);
 	}
+	
+	private void addFleetTab()
+	{
+		VerticalLayout fleetTab = new VerticalLayout();
+		tabsheet.addTab(fleetTab, "Fleets");
+		fleetTree = new Tree(SpaceMapConfig.getSolarSystemName());
+		fleetTab.addComponent(fleetTree);
+		fleetTree.setImmediate(true);
+		
+		fleetTree.addContainerProperty("name", String.class, null);
+		fleetTree.setItemCaptionMode(ItemCaptionMode.PROPERTY);
+		fleetTree.setItemCaptionPropertyId("name");
+		
+		for(Fleet fleet: spaceMap.getFleets())
+		{
+			Item factionItem = fleetTree.getItem(fleet.getFaction());
+			if( factionItem == null)
+			{
+				factionItem = fleetTree.addItem(fleet.getFaction());
+				factionItem.getItemProperty("name").setValue(fleet.getFaction());
+				
+			}
+			Item fleetItem = fleetTree.addItem(fleet);
+			fleetItem.getItemProperty("name").setValue(fleet.getName());
+			fleetTree.setParent(fleetItem, factionItem);
+			
+		}
+		
+		
+	}
 
 	private void addVisibilityTab() {
 		VerticalLayout visibilityTab = new VerticalLayout();
@@ -84,34 +111,40 @@ public class VisibilityWindow extends Window {
 			visibilityAccordion.addTab(typeTab, type.toString());
 
 			CheckBox showType = new CheckBox("Show " + type.toString());
-			showType.addValueChangeListener(
-					e -> spaceMap.getPaintPermissions().addFilter(type, (boolean) e.getProperty().getValue()));
+			showType.setValue(spaceMap.getPaintPermissions().findPermissionForType(type));
+
+			showType.addValueChangeListener(e -> {
+				spaceMap.getPaintPermissions().addFilter(type, (boolean) e.getProperty().getValue());
+			});
 			showType.setImmediate(true);
 
 			typeTab.addComponent(showType);
 
-			int i = 0;
 			for (String config : SpaceMapConfig.getIndicators()) {
 
 				CheckBox indicatorBox = new CheckBox(config);
-				//showType.addValueChangeListener(e -> indicators.add(e.getProperty().getValue()));
+				showType.addValueChangeListener(e -> indicatorBox.setEnabled(!(Boolean) e.getProperty().getValue()));
+				indicatorBox.setValue(spaceMap.getPaintPermissions().findComboForType(type,
+						SpaceMapConfig.findIndicatorIndex(config)));
+				indicatorBox.addValueChangeListener(e -> {
+					if ((Boolean) e.getProperty().getValue()) {
+						spaceMap.getPaintPermissions().addCombo(type, SpaceMapConfig.findIndicatorIndex(config));
+					} else {
+						spaceMap.getPaintPermissions().removeCombo(type, SpaceMapConfig.findIndicatorIndex(config));
+					}
+				});
 
 				typeTab.addComponent(indicatorBox);
 				indicatorBox.setEnabled(false);
-				i++;
+
 			}
 		}
-	}
-	
-	private void addCombo(Type type, int i)
-	{
-		spaceMap.getPaintPermissions().addCombo(type, i);
 	}
 
 	@SuppressWarnings("unchecked")
 	private void addOverviewTreeTab() {
 		VerticalLayout overviewTreeTab = new VerticalLayout();
-		tabsheet.addTab(overviewTreeTab, "Solarsystem overview");
+		tabsheet.addTab(overviewTreeTab, "Solarsystem");
 		tree = new Tree(SpaceMapConfig.getSolarSystemName());
 		overviewTreeTab.addComponent(tree);
 		SpaceObject mainStar = spaceMap.getMainStar();

@@ -43,6 +43,8 @@ public class SpaceMapImpl extends Panel implements DragListener, PermissionsChan
 
 	// TODO: docked ships may not need be in this list, might save performance.
 	private List<SpaceObject> spaceObjects = new ArrayList<>();
+	
+	@Getter private List<Fleet> fleets = new ArrayList<>();
 
 	private MouseController mouse = new MouseController();
 
@@ -67,6 +69,21 @@ public class SpaceMapImpl extends Panel implements DragListener, PermissionsChan
 		painter.drawMap(canvas, spaceObjects, scale);
 		painter.getPermisisons().addListener(this);
 	}
+	
+	public Fleet newFleet(Fleet.Type type, SpaceObject dockedAt, String name, String faction)
+	{
+		Fleet fleet = new Fleet(type, dockedAt, name, faction);
+		fleets.add(fleet);
+		return fleet;
+				
+	}
+	public Fleet newFleet(Fleet.Type type, int x, int y, String name, String faction)
+	{
+		Fleet fleet = new Fleet(type, x, y, name, faction);
+		fleets.add(fleet);
+		return fleet;
+	}
+	
 
 	private void updateSize(ComponentResizeEvent event) {
 		this.absoluteHeight = event.getHeight();
@@ -225,7 +242,7 @@ public class SpaceMapImpl extends Panel implements DragListener, PermissionsChan
 			// and if one of the candidates is docked at one of the others, do
 			// not
 			// select it.
-			if (!candidates.contains(candicate.getDockedAt()) && !candidates.contains(candicate.getOrbiting())) {
+			if (!candidates.contains(candicate.getOrbiting())) {
 				// that should leave exactly 1
 				SpaceObject currentlySelected = findSelectedSpaceObject();
 				if (currentlySelected != null) {

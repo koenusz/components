@@ -9,13 +9,14 @@ import com.vaadin.shared.ui.colorpicker.Color;
 
 import lombok.Getter;
 
-public class SpaceMapPainter{
+public class SpaceMapPainter {
 
 	private final static Logger logger = Logger.getLogger(SpaceMapUi.class.getName());
 
 	private SpaceMapImpl spaceMap;
-	
-	@Getter private PaintPermissions permisisons = new PaintPermissions();
+
+	@Getter
+	private PaintPermissions permisisons = new PaintPermissions();
 
 	public SpaceMapPainter(SpaceMapImpl spaceMap) {
 		super();
@@ -27,8 +28,15 @@ public class SpaceMapPainter{
 		canvas.clear();
 
 		drawBackground(canvas, new Color(35, 20, 180));
-		//TODO maybe filter spaceobject outside the painting coordinates of the canvas
-		spaceObjects.stream().filter(permisisons.switchedOn.or(permisisons.hasCombo).and(permisisons.parentPermission)).forEach(so -> drawSpaceObject(canvas, so, scale));
+		// TODO maybe filter spaceobject outside the painting coordinates of the
+		// canvas
+		logger.info("##### drawing map");
+		spaceObjects.stream().filter(permisisons.switchedOn.or(permisisons.hasCombo).and(permisisons.parentPermission))
+				.forEach(so -> {
+					logger.info("saceObject " + so.getName() + "switch/combo/parent " + permisisons.switchedOn.test(so) + "/"
+							+ permisisons.hasCombo.test(so) + "/" + permisisons.parentPermission.test(so));
+					drawSpaceObject(canvas, so, scale);
+				});
 	}
 
 	private void drawInfoText(Canvas canvas, SpaceObject so) {

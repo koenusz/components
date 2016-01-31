@@ -7,8 +7,6 @@ import javax.servlet.annotation.WebServlet;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.annotations.Widgetset;
-import com.vaadin.server.BrowserWindowOpener;
-import com.vaadin.server.Sizeable;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.Alignment;
@@ -42,10 +40,13 @@ public class SpaceMapUi extends UI {
 		spaceMap.addSpaceObject(new SpaceObject(Type.MOON, 3, 5, 1, 1, "Close Moon 2", mars));
 		// addSpaceObject(new SpaceObject(Type.SHIP, 2, 300, 150, "SS.
 		// Baksteen"));
-		SpaceObject ship1 = new SpaceObject(Type.SHIP, 2, 0, 0, 0, "Baksteen 1");
-		SpaceObject ship2 = new SpaceObject(Type.SHIP, 2, 0, 0, 0, "Baksteen 2");
-		mars.dockShip(ship1);
-		mars.dockShip(ship2);
+		Fleet friend = spaceMap.newFleet(Fleet.Type.OWNED, mars, "Baksteen 1", "Heroes");
+		Fleet enemy = spaceMap.newFleet(Fleet.Type.ENEMY, marsMoon1, "knallert", "Evildoers");
+		Fleet enemy2 = spaceMap.newFleet(Fleet.Type.ENEMY, 100, 100, "knallert", "Evildoers");
+		
+		friend.setFleetInfo("This is a friend.");
+		enemy.setFleetInfo("This is an enemy");
+		enemy2.setFleetInfo("This is an other enemy");
 
 		SpaceMapConfig.activateIndicator("Has Minerals");
 		SpaceMapConfig.activateIndicator("Has Colony");
