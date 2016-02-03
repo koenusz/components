@@ -2,6 +2,7 @@ package component.space.map;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import com.vaadin.ui.Panel;
 
 import component.space.map.SpaceObject.Type;
 import component.space.map.calls.SpaceMapListener;
+import component.space.map.menu.PropertyWindow;
 import component.space.map.mouse.DragListener;
 import component.space.map.mouse.MouseController;
 import lombok.Getter;
@@ -305,8 +307,16 @@ public class SpaceMapImpl extends Panel implements DragListener, PermissionsChan
 		canvas.setHeight(height + mode);
 	}
 
-	protected PaintPermissions getPaintPermissions() {
+	public PaintPermissions getPaintPermissions() {
 		return painter.getPermisisons();
+	}
+	
+	public void openPropertyWindow(Map<String, String> properties)
+	{
+		PropertyWindow window = new PropertyWindow();
+		window.populateTable(properties);
+		window.setResizable(false);
+		
 	}
 
 	@Override

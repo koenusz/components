@@ -1,7 +1,5 @@
-package component.space.map;
+package component.space.map.menu;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 import com.vaadin.data.Container.Filterable;
@@ -12,14 +10,17 @@ import com.vaadin.event.ItemClickEvent;
 import com.vaadin.ui.AbstractSelect.ItemCaptionMode;
 import com.vaadin.ui.Accordion;
 import com.vaadin.ui.CheckBox;
-import com.vaadin.ui.Component;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 
+import component.space.map.Fleet;
+import component.space.map.SpaceMapImpl;
+import component.space.map.SpaceObject;
 import component.space.map.SpaceObject.Type;
+import component.space.map.config.SpaceMapConfig;
 
 public class VisibilityWindow extends Window {
 
@@ -34,8 +35,6 @@ public class VisibilityWindow extends Window {
 	TabSheet tabsheet = new TabSheet();
 
 	Tree tree;
-	
-	Tree fleetTree;
 
 	SimpleStringFilter filter = null;
 
@@ -59,6 +58,7 @@ public class VisibilityWindow extends Window {
 	}
 
 	private void textChange(TextChangeEvent event) {
+
 		Filterable f = (Filterable) tree.getContainerDataSource();
 
 		// Remove old filter
@@ -69,35 +69,37 @@ public class VisibilityWindow extends Window {
 		filter = new SimpleStringFilter("name", event.getText(), true, false);
 		f.addContainerFilter(filter);
 	}
-	
-	private void addFleetTab()
-	{
+
+	private void addFleetTab() {
+		Tree fleetTree;
 		VerticalLayout fleetTab = new VerticalLayout();
 		tabsheet.addTab(fleetTab, "Fleets");
 		fleetTree = new Tree(SpaceMapConfig.getSolarSystemName());
 		fleetTab.addComponent(fleetTree);
 		fleetTree.setImmediate(true);
-		
+
 		fleetTree.addContainerProperty("name", String.class, null);
 		fleetTree.setItemCaptionMode(ItemCaptionMode.PROPERTY);
 		fleetTree.setItemCaptionPropertyId("name");
-		
-		for(Fleet fleet: spaceMap.getFleets())
-		{
+
+		for (Fleet fleet : spaceMap.getFleets()) {
 			Item factionItem = fleetTree.getItem(fleet.getFaction());
-			if( factionItem == null)
-			{
+			if (factionItem == null) {
 				factionItem = fleetTree.addItem(fleet.getFaction());
 				factionItem.getItemProperty("name").setValue(fleet.getFaction());
-				
+
 			}
 			Item fleetItem = fleetTree.addItem(fleet);
 			fleetItem.getItemProperty("name").setValue(fleet.getName());
-			fleetTree.setParent(fleetItem, factionItem);
-			
+			fleetTree.setParent(fleet, fleet.getFaction());
+
 		}
-		
-		
+		fleetTree.addItemClickListener(e -> {
+			if (e.getItemId() instanceof Fleet) {
+				spaceMap.openPropertyWindow(((Fleet) e.getItemId()).getProperties());
+			}
+		});
+
 	}
 
 	private void addVisibilityTab() {
@@ -143,6 +145,7 @@ public class VisibilityWindow extends Window {
 
 	@SuppressWarnings("unchecked")
 	private void addOverviewTreeTab() {
+
 		VerticalLayout overviewTreeTab = new VerticalLayout();
 		tabsheet.addTab(overviewTreeTab, "Solarsystem");
 		tree = new Tree(SpaceMapConfig.getSolarSystemName());
@@ -157,7 +160,7 @@ public class VisibilityWindow extends Window {
 		Item item = tree.addItem(mainStar);
 
 		item.getItemProperty("name").setValue(mainStar.getName());
-		addChildren(mainStar);
+		addChildren(mainStar, tree);
 		tree.expandItemsRecursively(mainStar);
 		tree.addItemClickListener(e -> selectListener(e));
 
@@ -170,21 +173,20 @@ public class VisibilityWindow extends Window {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void addSpaceObjectToTree(SpaceObject so) {
+	private void addSpaceObjectToTree(SpaceObject so, Tree tree) {
 
 		Item item = tree.addItem(so);
 		item.getItemProperty("name").setValue(so.getName());
 
 	}
 
-	private void addChildren(SpaceObject parent) {
+	private void addChildren(SpaceObject parent, Tree tree) {
 		for (SpaceObject child : parent.getOrbitingThis()) {
 			if (spaceMap.getPaintPermissions().hasPermission(child)) {
-				addSpaceObjectToTree(child);
+				addSpaceObjectToTree(child, tree);
 				tree.setParent(child, parent);
-				addChildren(child);
+				addChildren(child, tree);
 			}
 		}
 	}
-
 }

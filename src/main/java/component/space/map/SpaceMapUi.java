@@ -16,6 +16,8 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 
 import component.space.map.SpaceObject.Type;
+import component.space.map.config.SpaceMapConfig;
+import component.space.map.menu.VisibilityWindow;
 
 @Theme("mytheme")
 @Widgetset("component.space.map.SpaceMapWidgetset")
@@ -42,11 +44,18 @@ public class SpaceMapUi extends UI {
 		// Baksteen"));
 		Fleet friend = spaceMap.newFleet(Fleet.Type.OWNED, mars, "Baksteen 1", "Heroes");
 		Fleet enemy = spaceMap.newFleet(Fleet.Type.ENEMY, marsMoon1, "knallert", "Evildoers");
-		Fleet enemy2 = spaceMap.newFleet(Fleet.Type.ENEMY, 100, 100, "knallert", "Evildoers");
+		Fleet enemy2 = spaceMap.newFleet(Fleet.Type.ENEMY, 100, 100, "beukert", "Evildoers");
 		
 		friend.setFleetInfo("This is a friend.");
 		enemy.setFleetInfo("This is an enemy");
 		enemy2.setFleetInfo("This is an other enemy");
+		
+		enemy2.mergeProperty("evildoers on board", "25");
+		enemy2.mergeProperty("fuel", "25%");
+		enemy2.mergeProperty("clowns on board", "25");
+		enemy2.mergeProperty("shipclasses in fleet", "evil1, evil2");
+		enemy2.mergeProperty("armaments", "missiles, lasers");
+		
 
 		SpaceMapConfig.activateIndicator("Has Minerals");
 		SpaceMapConfig.activateIndicator("Has Colony");
@@ -61,13 +70,29 @@ public class SpaceMapUi extends UI {
 		leftMenu.setWidthUndefined();
 
 		Button arrow = new Button();
-		final String arrowUp = "\\u2c4";
-		final String arrowDown = "&#709;";
-		arrow.setCaption(arrowDown);
-		arrow.addClickListener( e -> {VisibilityWindow vis = new VisibilityWindow(spaceMap);
-		UI.getCurrent().addWindow(vis);
+		final String arrowUp = "\u25B2";
 		
+		final String arrowDown = "\u25BC";
+		arrow.setCaption(arrowDown);
+		VisibilityWindow vis = new VisibilityWindow(spaceMap);
+		vis.setVisible(false);
+		UI.getCurrent().addWindow(vis);
+		vis.setClosable(false);
+		vis.setResizable(false);
+		
+		arrow.addClickListener( e -> {
+		if(arrow.getCaption().equals(arrowDown))	
+		{
+		vis.setVisible(true);
+		
+		arrow.setCaption(arrowUp);
+		} else 
+		{
+			arrow.setCaption(arrowDown);
+			vis.setVisible(false);
+		}
 		});
+		
 
 //		BrowserWindowOpener popupOpener = new BrowserWindowOpener(VisibilityWindow.class);
 //		popupOpener.setFeatures("height=300,width=300");

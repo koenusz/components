@@ -1,10 +1,10 @@
 package component.space.map;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+import com.google.gwt.dev.util.collect.HashMap;
 import com.vaadin.shared.ui.colorpicker.Color;
 import com.vaadin.ui.Image;
 
@@ -47,6 +47,8 @@ public class Fleet {
 
 	private Color color = null;
 	
+	private Map<String, String> properties = new HashMap<>();
+	
 	
 	public Fleet(Type type, int x, int y, String name, String faction) {
 		super();
@@ -62,7 +64,10 @@ public class Fleet {
 		this.dockedAt = dockedAt;
 	}
 	
-	
+	public void mergeProperty(String key, String value)
+	{
+		properties.merge(key, value, (old, newValue) -> newValue);
+	}
 	
 	
 	protected Location getLocation()

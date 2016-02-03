@@ -32,15 +32,15 @@ public class PaintPermissions {
 		}
 	}
 
-	protected boolean findPermissionForType(Type type) {
+	public boolean findPermissionForType(Type type) {
 		return filterSwitch.get(type);
 	}
 
-	protected boolean findComboForType(Type type, int indicator) {
+	public boolean findComboForType(Type type, int indicator) {
 		return comboMap.get(type).get(indicator);
 	}
 
-	protected boolean hasPermission(SpaceObject so) {
+	public boolean hasPermission(SpaceObject so) {
 		return switchedOn.or(hasCombo).and(parentPermission).test(so);
 	}
 
@@ -64,14 +64,14 @@ public class PaintPermissions {
 		return false;
 	};
 
-	protected void addFilter(Type type, boolean onOrOff) {
+	public void addFilter(Type type, boolean onOrOff) {
 
 		filterSwitch.merge(type, onOrOff, (old, newValue) -> newValue);
 		notifyListeners();
 		logger.info("add filter for " + type + " " + onOrOff + " map " + filterSwitch.get(type));
 	}
 
-	protected void addCombo(Type type, int... indicators) {
+	public void addCombo(Type type, int... indicators) {
 		logger.info("add combo for " + type + " " + indicators);
 		for (int i : indicators) {
 			if (i >= 6) {

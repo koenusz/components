@@ -1,4 +1,4 @@
-package component.space.map;
+package component.space.map.config;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +69,7 @@ public class SpaceMapConfig {
 	public static List<String> getIndicators() {
 		return indicators;}
 	
-	protected static int findIndicatorIndex(String indicatorName)
+	public static int findIndicatorIndex(String indicatorName)
 	{
 		return indicators.indexOf(indicatorName);
 	}
